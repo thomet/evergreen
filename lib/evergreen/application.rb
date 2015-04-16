@@ -1,7 +1,22 @@
+require 'sprockets-sass'
+require 'sinatra/sprockets-helpers'
+
 module Evergreen
   class Application < Sinatra::Base
+    class << self
+      def add_asset_paths(paths)
+        paths.each do |path|
+          sprockets.append_path path
+        end
+      end
+    end
+
+    register Sinatra::Sprockets::Helpers
+
     set :static, false
     set :root, File.expand_path('.', File.dirname(__FILE__))
+    set :sprockets, Sprockets::Environment.new
+    set :paths, []
 
     helpers do
       def url(path)
@@ -37,6 +52,12 @@ module Evergreen
 
     get "/resources/*" do |path|
       send_file File.expand_path(File.join('resources', path), File.dirname(__FILE__))
+    end
+
+    get "/assets/*" do |path|
+      env_sprockets = request.env.dup
+      env_sprockets['PATH_INFO'] = path
+      settings.sprockets.call env_sprockets
     end
 
     get '/*' do |path|

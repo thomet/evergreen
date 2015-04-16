@@ -28,6 +28,8 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency("sinatra", ["~> 1.1"])
   s.add_runtime_dependency("json_pure")
   s.add_runtime_dependency("coffee-script")
+  s.add_runtime_dependency("sprockets-helpers")
+  s.add_runtime_dependency("sprockets-sass")
 
   s.add_development_dependency('rspec', ['>=3.2.0'])
   s.add_development_dependency('therubyracer', ['~> 0.9'])
