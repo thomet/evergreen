@@ -7,7 +7,18 @@ module Evergreen
       def add_asset_paths(paths)
         paths.each do |path|
           sprockets.append_path path
+          #precompile_assets!
         end
+      end
+
+      def precompile_assets!
+        puts "PRECOMPILE!!"
+        manifest = Sprockets::Manifest.new(sprockets.index, '/tmp/my_assets')
+        manifest.compile(%w(application.css application.js))
+      end
+
+      def clean_precompiled_assets!
+        FileUtils.rm_rf('/tmp/my_assets')
       end
     end
 
@@ -17,6 +28,8 @@ module Evergreen
     set :root, File.expand_path('.', File.dirname(__FILE__))
     set :sprockets, Sprockets::Environment.new
     set :paths, []
+    set :asset_path, '/tmp/my_assets'
+    set :public_folder, '/tmp/my_assets/assets'
 
     helpers do
       def url(path)
@@ -27,6 +40,13 @@ module Evergreen
         spec.read if spec
       rescue StandardError => error
         erb :_spec_error, :locals => { :error => error }
+      end
+    end
+
+    configure do
+      Sprockets::Helpers.configure do |config|
+        config.manifest = Sprockets::Manifest.new(sprockets.index, '/tmp/my_assets')
+        config.debug = false
       end
     end
 
